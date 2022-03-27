@@ -1,0 +1,14 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'sudoku/style.css' %}">
+{% if latest_sudoku_list %}
+    <ul>
+    {% for sudoku in latest_sudoku_list %}
+        <li>
+            <a href="{% url 'sudoku:saved' sudoku.id %}">Saved sudoku №{{ sudoku.id }}</a>
+            {{ sudoku.grid }}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No saved sudokus are available.</p>
+{% endif %}

@@ -1,0 +1,11 @@
+<div class="sudoku_board">
+    <table>
+    {% for row in sudoku_grid %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+</div>

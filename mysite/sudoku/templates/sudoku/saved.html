@@ -1,0 +1,19 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'sudoku/style.css' %}">
+
+<h1>Sudoku board 9x9</h1>
+{% if sudoku_grid %}
+    <div class="sudoku_board">
+    <table>
+    {% for row in sudoku_grid %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% else %}
+    <p>No sudoku generated.</p>
+{% endif %}
