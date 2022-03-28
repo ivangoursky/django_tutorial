@@ -93,7 +93,19 @@ def index_view(request):
             le = SudokuListEntry(id=sud.id, grid = gr)
             latest_sudoku_list.append(le)
 
-        return render(request,'sudoku/index.html', {'latest_sudoku_list' : latest_sudoku_list})
+        ngiven = range(21,51)
+        ngiven_byrow = []
+        tmp = []
+        for i in range(len(ngiven)):
+            tmp.append(ngiven[i])
+            if i % 5 == 4:
+                ngiven_byrow.append(tmp)
+                tmp = []
+
+        if len(tmp) > 0:
+            ngiven_byrow.append(tmp)
+
+        return render(request,'sudoku/index.html', {'latest_sudoku_list' : latest_sudoku_list, 'ngiven': ngiven_byrow})
 
 def get_anonymous_user():
     return SudokuBlogUser.objects.get(loginname="anonymous")

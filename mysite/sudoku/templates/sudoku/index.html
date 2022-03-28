@@ -12,3 +12,11 @@
 {% else %}
     <p>No saved sudokus are available.</p>
 {% endif %}
+<h1>Generate new sudoku (click the number of given cells)</h1>
+{% for row in ngiven %}
+    <p>
+    {% for n in row %}
+        <a href="{% url 'sudoku:byngiven' n %}">{{ n }}</a>
+    {% endfor %}
+    </p>
+{% endfor %}

@@ -5,12 +5,12 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="{% url 'sudoku:save' dim_field dim_house sudoku_state %}" method="post">
-{% csrf_token %}
 {% if sudoku_grid %}
+<form action="{% url 'sudoku:save' dim_field dim_house sudoku_state %}" method="post">
+    {% csrf_token %}
     {% include "sudoku/sudoku_board.html" %}
+<input type="submit" value="Save">
+</form>
 {% else %}
     <p>No sudoku generated.</p>
 {% endif %}
-<input type="submit" value="Save">
-</form>
