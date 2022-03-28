@@ -1,0 +1,4 @@
+Practice projects for Python and Django framework.
+Includes to working applications:
+1) polls - created according to the Django tutorial "Writing your first Django app"
+2) sudoku - application that allows to generate, save, view and comment sudoku puzzles
