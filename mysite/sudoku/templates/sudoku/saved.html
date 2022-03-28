@@ -2,18 +2,36 @@
 <link rel="stylesheet" type="text/css" href="{% static 'sudoku/style.css' %}">
 
 <h1>Sudoku board 9x9</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'sudoku:leave_a_comment' sudoku_id %}" method="post">
+{% csrf_token %}
 {% if sudoku_grid %}
-    <div class="sudoku_board">
-    <table>
-    {% for row in sudoku_grid %}
-        <tr>
-            {% for cell in row %}
-            <td>{{ cell }}</td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
+    {% include "sudoku/sudoku_board.html" %}
+    {% if sudoku_comments %}
+        <div class="comments_section">
+            <h1>Comments:</h1>
+        {% for comment in sudoku_comments %}
+            <div class="comment">
+                <div class="comment_head">
+                    <strong>{{ comment.comment_user }} at {{ comment.pub_date }}</strong>
+                </div>
+                <div class="comment_body">
+                    <p>{{ comment.comment_text }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    <div class="comment_form">
+        <div class="input">
+            <label>Leave a comment:</label><br/>
+            <textarea name="comment" cols="50" rows="15" ></textarea>
+        </div>
+        <input type="submit" value="Comment">
     </div>
 {% else %}
     <p>No sudoku generated.</p>
 {% endif %}
+</form>

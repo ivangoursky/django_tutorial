@@ -1,11 +1,14 @@
+{% if sudoku_user %}
+    <h2>Created by {{ sudoku_user }} at {{ sudoku_date }}</h2>
+{% endif %}
 <div class="sudoku_board">
-    <table>
-    {% for row in sudoku_grid %}
-        <tr>
-            {% for cell in row %}
-            <td>{{ cell }}</td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
+<table>
+{% for row in sudoku_grid %}
+    <tr>
+        {% for cell in row %}
+        <td class="{{ cell.cell_style }}">{{ cell.cell_text }}</td>
+        {% endfor %}
+    </tr>
+{% endfor %}
+</table>
 </div>

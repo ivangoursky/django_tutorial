@@ -8,17 +8,7 @@
 <form action="{% url 'sudoku:save' dim_field dim_house sudoku_state %}" method="post">
 {% csrf_token %}
 {% if sudoku_grid %}
-    <div class="sudoku_board">
-    <table>
-    {% for row in sudoku_grid %}
-        <tr>
-            {% for cell in row %}
-            <td>{{ cell }}</td>
-            {% endfor %}
-        </tr>
-    {% endfor %}
-    </table>
-    </div>
+    {% include "sudoku/sudoku_board.html" %}
 {% else %}
     <p>No sudoku generated.</p>
 {% endif %}
