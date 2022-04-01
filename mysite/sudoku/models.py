@@ -5,7 +5,6 @@ class SudokuBlogUser(models.Model):
     firstname = models.CharField(max_length=50)
     lastname = models.CharField(max_length=50)
     is_registered_user = models.BooleanField()
-    password_salt = models.CharField(max_length=8)
     password_hash = models.CharField(max_length=100)
 
     def __str__(self):
@@ -36,3 +35,8 @@ class SudokuComment(models.Model):
 
     def __str__(self):
         return "%s at %s: %s" % (self.comment_user.loginname, self.pub_date, self.comment_text)
+
+class SudokuBlogUserSession(models.Model):
+    sudoku_user = models.ForeignKey(SudokuBlogUser, on_delete=models.CASCADE)
+    session_id = models.CharField(max_length=100)
+    expires_at = models.DateTimeField()

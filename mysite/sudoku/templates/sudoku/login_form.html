@@ -1,0 +1,19 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'sudoku/style.css' %}">
+
+<h1>User login</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'sudoku:login_user' %}" method="post">
+{% csrf_token %}
+    <div class="login_form">
+        <div class="input">
+            <label>Login name:</label><br/>
+            <input name="loginname"></input><br>
+            <label>Password:</label><br/>
+            <input name="password" type="password"></input>
+        </div>
+        <input type="submit" value="Login">
+    </div>
+</form>

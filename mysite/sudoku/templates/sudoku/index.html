@@ -1,5 +1,6 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'sudoku/style.css' %}">
+{% include "sudoku/header.html" %}
 {% if latest_sudoku_list %}
     <ul>
     {% for sudoku in latest_sudoku_list %}

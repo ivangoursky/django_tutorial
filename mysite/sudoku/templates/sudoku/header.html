@@ -1,0 +1,8 @@
+<head>
+    {% if logged_in_user %}
+    Logged in as {{ logged_in_user.loginname }} ({{ logged_in_user.firstname }} {{ logged_in_user.lastname }})
+    <a href = "{% url 'sudoku:logout' %}">Logout</a>
+    {% else %}
+    You are not logged in. <a href = "{% url 'sudoku:login_form' %}">Login</a> or <a href = "{% url 'sudoku:register_form' %}">Register</a>
+    {% endif %}
+</head>

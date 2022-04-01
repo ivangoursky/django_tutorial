@@ -6,6 +6,7 @@ from django.views import generic
 from django.template import loader
 from django.utils import timezone
 from .models import SavedSudoku, SudokuComment, SudokuBlogUser
+from .user import *
 
 
 def generate_one_field(ngiven=23, randseed = None):
@@ -78,6 +79,13 @@ def prepare_grid(sud):
 
     return grid_emptycells
 
+
+def add_header_context(request, context):
+    user = get_logged_in_user(request)
+    if user is not None:
+        context['logged_in_user'] = user
+
+
 class SudokuListEntry:
     def __init__(self, id, grid):
         self.id = id
@@ -105,10 +113,9 @@ def index_view(request):
         if len(tmp) > 0:
             ngiven_byrow.append(tmp)
 
-        return render(request,'sudoku/index.html', {'latest_sudoku_list' : latest_sudoku_list, 'ngiven': ngiven_byrow})
-
-def get_anonymous_user():
-    return SudokuBlogUser.objects.get(loginname="anonymous")
+        context = {'latest_sudoku_list' : latest_sudoku_list, 'ngiven': ngiven_byrow}
+        add_header_context(request, context)
+        return render(request,'sudoku/index.html', context)
 
 def generate(request, ngiven):
     if (21<=ngiven<=50):
@@ -136,11 +143,14 @@ def generate(request, ngiven):
     else:
         context ={'sudoku_grid':None}
 
+    add_header_context(request, context)
     return render(request,'sudoku/generated.html', context)
 
 
 def save(request,dim_field,dim_house,sudoku_state):
-    usr = get_anonymous_user()
+    usr = get_logged_in_user(request)
+    if usr is None:
+        usr = get_anonymous_user()
     sud = SavedSudoku(
                 sudoku_dimensions_field = dim_field,
                 sudoku_dimensions_house = dim_house,
@@ -175,6 +185,7 @@ def get_savedsudoku_context(sudoku_id):
 
 def saved(request, sudoku_id):
     context = get_savedsudoku_context(sudoku_id)
+    add_header_context(request, context)
 
     return render(request,'sudoku/saved.html', context)
 
@@ -182,7 +193,9 @@ def leave_a_comment(request, sudoku_id):
     txt = request.POST['comment']
     sud = SavedSudoku.objects.get(pk = sudoku_id)
     if len(txt) > 0:
-        usr = get_anonymous_user()
+        usr = get_logged_in_user(request)
+        if usr is None:
+            usr = get_anonymous_user()
         comm = SudokuComment(
             saved_sudoku = sud,
             comment_user = usr,
@@ -193,6 +206,104 @@ def leave_a_comment(request, sudoku_id):
     else:
         context = get_savedsudoku_context(sudoku_id)
         context['error_message'] = "Your comment is empty."
+        add_header_context(request, context)
         return render(request, 'sudoku/saved.html', context)
 
     return HttpResponseRedirect(reverse('sudoku:saved', args=(sudoku_id,)))
+
+
+def login_form(request):
+    user = get_logged_in_user(request)
+    if user is not None:
+        return HttpResponseRedirect(reverse('sudoku:index'))
+
+    return render(request, 'sudoku/login_form.html', {})
+
+def login_user(request):
+    user = get_logged_in_user(request)
+    if user is not None:
+        return HttpResponseRedirect(reverse('sudoku:index'))
+
+    loginname = request.POST['loginname']
+    password = request.POST['password']
+
+    status = check_user_password(loginname, password)
+
+    if not status['success']:
+        return render(request, 'sudoku/login_form.html', {'error_message': status['error']})
+
+    user = get_user_by_loginname(loginname)
+    session = new_session(user)
+    response = HttpResponseRedirect(reverse('sudoku:index'))
+    response.set_cookie(MY_AUTH_COOKIE,session.session_id, expires = session.expires_at)
+    return response
+
+def logout_user(request):
+    user = get_logged_in_user(request)
+    if user is not None:
+        session = get_logged_in_session(request)
+        if session is not None:
+            session.delete()
+
+    response = HttpResponseRedirect(reverse('sudoku:index'))
+    response.delete_cookie(MY_AUTH_COOKIE)
+    return response
+
+def register_form(request):
+    user = get_logged_in_user(request)
+    if user is not None:
+        return HttpResponseRedirect(reverse('sudoku:index'))
+
+    return render(request, 'sudoku/register_form.html', {})
+
+
+def register_user(request):
+    user = get_logged_in_user(request)
+    if user is not None:
+        return HttpResponseRedirect(reverse('sudoku:index'))
+
+    loginname = request.POST['loginname']
+    firstname = request.POST['firstname']
+    lastname = request.POST['lastname']
+    password1 = request.POST['password1']
+    password2 = request.POST['password2']
+
+    error = False
+    message = ""
+    if len(loginname) == 0:
+        error = True
+        message = message + "Login name shouldn't be empty. "
+
+    if len(firstname) == 0:
+        error = True
+        message = message + "First name shouldn't be empty. "
+
+    if len(lastname) == 0:
+        error = True
+        message = message + "Last name shouldn't be empty. "
+
+    if len(password1) == 0 or len(password2) == 0:
+        error = True
+        message = message + "Password shouldn't be empty. "
+
+    if password1 != password2:
+        error = True
+        message = message + "Passwords are different. "
+
+    if error:
+        return render(request, 'sudoku/register_form.html', {'error_message': message})
+
+    status = create_sudoku_user(
+                    loginname = loginname,
+                    password = password1,
+                    firstname = firstname,
+                    lastname = lastname
+                    )
+    if not status['success']:
+        return render(request, 'sudoku/register_form.html', {'error_message': status['error']})
+
+    user = get_user_by_loginname(loginname)
+    session = new_session(user)
+    response = HttpResponseRedirect(reverse('sudoku:index'))
+    response.set_cookie(MY_AUTH_COOKIE, session.session_id, expires=session.expires_at)
+    return response
